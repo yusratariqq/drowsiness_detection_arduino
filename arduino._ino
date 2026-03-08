@@ -1,0 +1,55 @@
+// Drowsiness Alert System - Arduino Code
+// Pins
+#define LED_PIN     12
+#define BUZZER_PIN  9
+#define MOTOR_PIN   8
+
+String command = "";
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(LED_PIN, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(MOTOR_PIN, OUTPUT);
+  
+  // All off at start
+  digitalWrite(LED_PIN, LOW);
+  digitalWrite(BUZZER_PIN, LOW);
+  digitalWrite(MOTOR_PIN, LOW);
+  
+  Serial.println("SYSTEM STATUS: Ready");
+}
+
+void loop() {
+  // Check for commands from Python
+  if (Serial.available() > 0) {
+    command = Serial.readStringUntil('\n');
+    command.trim();
+
+    if (command == "LED_ON") {
+      digitalWrite(LED_PIN, HIGH);
+      Serial.println("LED ON");
+    }
+    else if (command == "LED_OFF") {
+      digitalWrite(LED_PIN, LOW);
+      Serial.println("LED OFF");
+    }
+    else if (command == "ALERT_ON") {
+      // Turn on LED + Buzzer + Motor together
+      digitalWrite(LED_PIN, HIGH);
+      digitalWrite(BUZZER_PIN, HIGH);
+      digitalWrite(MOTOR_PIN, HIGH);
+      Serial.println("ALERT ON");
+    }
+    else if (command == "ALERT_OFF") {
+      // Turn everything off
+      digitalWrite(LED_PIN, LOW);
+      digitalWrite(BUZZER_PIN, LOW);
+      digitalWrite(MOTOR_PIN, LOW);
+      Serial.println("ALERT OFF");
+    }
+    else if (command == "STATUS") {
+      Serial.println("SYSTEM STATUS: Ready");
+    }
+  }
+}
