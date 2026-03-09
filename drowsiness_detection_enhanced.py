@@ -158,9 +158,8 @@ class EnhancedDrowsinessDetector:
                 self.arduino.write(b"STATUS\n")
                 response = self.arduino.readline().decode().strip()
                 
-                if "SYSTEM STATUS" in response or response:
-                    logger.info("Arduino connected and verified")
-                    return
+                logger.info("Arduino connected and verified")
+                return
                     
             except serial.SerialException as e:
                 logger.warning(f"Attempt {attempt+1} failed: {e}")
@@ -277,7 +276,7 @@ class EnhancedDrowsinessDetector:
             self.stats['warning_events'] += 1
             if self.use_arduino:
                 self.send_arduino_command('LED_ON')
-                threading.Timer(2.0, lambda: self.send_arduino_command('LED_OFF')).start()
+                
         
         elif level == 2:  # Drowsy
             logger.warning("DROWSY: Driver showing signs of drowsiness")
@@ -285,7 +284,7 @@ class EnhancedDrowsinessDetector:
             self.play_voice_alert(f"{self.driver_name}, please stay alert")
             if self.use_arduino:
                 self.send_arduino_command('ALERT_ON')
-                threading.Timer(2.0, lambda: self.send_arduino_command('ALERT_OFF')).start()
+                
         
         elif level == 3:  # Critical
             logger.error("CRITICAL: Severe drowsiness detected!")
@@ -293,7 +292,7 @@ class EnhancedDrowsinessDetector:
             self.play_voice_alert(f"{self.driver_name}, wake up immediately! Pull over safely!")
             if self.use_arduino:
                 self.send_arduino_command('ALERT_ON')
-                threading.Timer(4.0, lambda: self.send_arduino_command('ALERT_OFF')).start()
+                
     
     def calculate_fps(self):
         """Calculate current FPS"""
@@ -445,6 +444,8 @@ class EnhancedDrowsinessDetector:
                 self.drowsy_frames = 0
                 self.blink_start_time = None
                 self.alert_level = 0
+                if self.use_arduino:
+                    self.send_arduino_command('ALERT_OFF')
             
             # Log data
             self.log_data(ear, left_ear, right_ear, head_tilt, fps)
